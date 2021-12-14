@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import Index from "/src/views/Index";
+import Index from "./views/Index.vue";
 
 export default {
   name: "App",
