@@ -10,14 +10,16 @@
 
             <div class="sheet__content dough">
               <label
-                class="dough__input dough__input--light"
                 v-for="dough in getDough"
                 :key="dough.name"
+                :class="`dough__input dough__input--${getDoughClass(
+                  dough.name
+                )}`"
               >
                 <input
                   type="radio"
                   name="dought"
-                  value="light"
+                  :value="dough.name === 'Тонкое' ? 'light' : 'large'"
                   class="visually-hidden"
                   checked=""
                 />
@@ -34,14 +36,16 @@
 
             <div class="sheet__content diameter">
               <label
-                class="diameter__input diameter__input--small"
                 v-for="size in getSizes"
                 :key="size.name"
+                :class="`diameter__input diameter__input--${getSizeClass(
+                  size.name
+                )}`"
               >
                 <input
                   type="radio"
                   name="diameter"
-                  value="small"
+                  :value="getSizeClass(size.name)"
                   class="visually-hidden"
                 />
                 <span>{{ size.name }}</span>
@@ -65,7 +69,12 @@
                   v-for="sauce in getSauces"
                   :key="sauce.name"
                 >
-                  <input type="radio" name="sauce" value="tomato" checked="" />
+                  <input
+                    type="radio"
+                    name="sauce"
+                    :value="sauce.name === 'Томатный' ? 'tomato' : 'creamy'"
+                    checked=""
+                  />
                   <span>{{ sauce.name }}</span>
                 </label>
               </div>
@@ -79,7 +88,11 @@
                     v-for="ingredient in getIngredients"
                     :key="ingredient.name"
                   >
-                    <span class="filling filling--mushrooms">
+                    <span
+                      :class="`filling filling--${getIngredientClass(
+                        ingredient.name
+                      )}`"
+                    >
                       {{ ingredient.name }}
                     </span>
 
@@ -145,15 +158,69 @@ import pizzaJsonData from "@/static/pizza.json";
 export default {
   name: "PizzaConstructor",
   data() {
-    return {
-      pizzaData: pizzaJsonData,
-    };
+    return {};
   },
   computed: {
-    getDough: () => this.pizzaData.dough,
-    getIngredients: () => this.pizzaData.ingredients,
-    getSauces: () => this.pizzaData.sauces,
-    getSizes: () => this.pizzaData.sizes,
+    getDough: () => {
+      return pizzaJsonData.dough;
+    },
+    getIngredients: () => pizzaJsonData.ingredients,
+    getSauces: () => pizzaJsonData.sauces,
+    getSizes: () => pizzaJsonData.sizes,
+  },
+  methods: {
+    getDoughClass(name) {
+      switch (name) {
+        case "Тонкое":
+          return "light";
+        default:
+          return "large";
+      }
+    },
+    getSizeClass(name) {
+      switch (name) {
+        case "23 см":
+          return "small";
+        case "32 см":
+          return "normal";
+        default:
+          return "big";
+      }
+    },
+    getIngredientClass(name) {
+      switch (name) {
+        case "Грибы":
+          return "mushrooms";
+        case "Чеддер":
+          return "cheddar";
+        case "Салями":
+          return "salami";
+        case "Ветчина":
+          return "ham";
+        case "Ананас":
+          return "ananas";
+        case "Бекон":
+          return "bacon";
+        case "Лук":
+          return "onion";
+        case "Чили":
+          return "chile";
+        case "Халапеньо":
+          return "jalapeno";
+        case "Маслины":
+          return "olives";
+        case "Томаты":
+          return "tomatoes";
+        case "Лосось":
+          return "salmon";
+        case "Моцарелла":
+          return "mozzarella";
+        case "Блю чиз":
+          return "blue_cheese";
+        default:
+          return "parmesan";
+      }
+    },
   },
 };
 </script>
