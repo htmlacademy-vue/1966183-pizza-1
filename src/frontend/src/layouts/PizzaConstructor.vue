@@ -10,7 +10,7 @@
 
             <div class="sheet__content dough">
               <label
-                v-for="dough in getDough"
+                v-for="dough in doughs"
                 :key="dough.name"
                 :class="`dough__input dough__input--${getDoughClass(
                   dough.name
@@ -19,7 +19,7 @@
                 <input
                   type="radio"
                   name="dought"
-                  :value="dough.name === 'Тонкое' ? 'light' : 'large'"
+                  :value="getDoughClass(dough.name)"
                   class="visually-hidden"
                   checked=""
                 />
@@ -36,7 +36,7 @@
 
             <div class="sheet__content diameter">
               <label
-                v-for="size in getSizes"
+                v-for="size in sizes"
                 :key="size.name"
                 :class="`diameter__input diameter__input--${getSizeClass(
                   size.name
@@ -66,13 +66,13 @@
 
                 <label
                   class="radio ingredients__input"
-                  v-for="sauce in getSauces"
+                  v-for="sauce in sauces"
                   :key="sauce.name"
                 >
                   <input
                     type="radio"
                     name="sauce"
-                    :value="sauce.name === 'Томатный' ? 'tomato' : 'creamy'"
+                    :value="getSaucesClass(sauce.name)"
                     checked=""
                   />
                   <span>{{ sauce.name }}</span>
@@ -85,7 +85,7 @@
                 <ul class="ingredients__list">
                   <li
                     class="ingredients__item"
-                    v-for="ingredient in getIngredients"
+                    v-for="ingredient in ingredients"
                     :key="ingredient.name"
                   >
                     <span
@@ -158,15 +158,12 @@ import pizzaJsonData from "@/static/pizza.json";
 export default {
   name: "PizzaConstructor",
   data() {
-    return {};
-  },
-  computed: {
-    getDough: () => {
-      return pizzaJsonData.dough;
-    },
-    getIngredients: () => pizzaJsonData.ingredients,
-    getSauces: () => pizzaJsonData.sauces,
-    getSizes: () => pizzaJsonData.sizes,
+    return {
+      doughs: pizzaJsonData.dough,
+      ingredients: pizzaJsonData.ingredients,
+      sauces: pizzaJsonData.sauces,
+      sizes: pizzaJsonData.sizes,
+    };
   },
   methods: {
     getDoughClass(name) {
@@ -175,6 +172,14 @@ export default {
           return "light";
         default:
           return "large";
+      }
+    },
+    getSaucesClass(name) {
+      switch (name) {
+        case "Томатный":
+          return "tomato";
+        default:
+          return "creamy";
       }
     },
     getSizeClass(name) {
