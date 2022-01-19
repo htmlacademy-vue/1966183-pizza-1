@@ -1,17 +1,13 @@
 <template>
-  <span
-    :class="`${selectorType} ${selectorType}--${classesHelpers.getIngredientClass(
-      item.name
-    )}`"
-  >
+  <span :class="selectorItemClass">
     {{ item.name }}
   </span>
 </template>
 
 <script>
-import classesHelpers from "@/common/helpers/classes";
+import { getIngredientClass } from "@/common/helpers/classes";
 export default {
-  name: "IngrediSelectorItem",
+  name: "SelectorItem",
   props: {
     item: {
       type: Object,
@@ -21,8 +17,13 @@ export default {
       type: String,
     },
   },
-  data() {
-    return { classesHelpers };
+  methods: {
+    getIngredientClass,
+  },
+  computed: {
+    selectorItemClass() {
+      return `filling filling--${this.getIngredientClass(this.item.name)}`;
+    },
   },
 };
 </script>

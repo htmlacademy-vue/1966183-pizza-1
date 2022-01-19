@@ -1,20 +1,20 @@
-const getDoughClass = (name) => {
+export const getDoughClass = (name) => {
   switch (name) {
     case "Тонкое":
       return "light";
     default:
       return "large";
   }
-}
-const getSaucesClass = (name) => {
+};
+export const getSaucesClass = (name) => {
   switch (name) {
     case "Томатный":
       return "tomato";
     default:
       return "creamy";
   }
-}
-const getSizeClass = (name) => {
+};
+export const getSizeClass = (name) => {
   switch (name) {
     case "23 см":
       return "small";
@@ -23,8 +23,8 @@ const getSizeClass = (name) => {
     default:
       return "big";
   }
-}
-const getIngredientClass = (name) => {
+};
+export const getIngredientClass = (name) => {
   switch (name) {
     case "Грибы":
       return "mushrooms";
@@ -57,6 +57,17 @@ const getIngredientClass = (name) => {
     default:
       return "parmesan";
   }
-}
+};
 
-export default
+export const getCorrectClass = (name, selectorType) => {
+  switch (selectorType) {
+    case "dough":
+      return getDoughClass(name);
+    case "ingredients":
+      return getIngredientClass(name);
+    case "sauces":
+      return getSaucesClass(name);
+    default:
+      return getSizeClass(name);
+  }
+};

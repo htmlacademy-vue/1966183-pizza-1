@@ -1,35 +1,39 @@
 <template>
-  <label
-    :class="`${selectorType}__input ${selectorType}__input--${classesHelpers.getCorrectClass(
-      item.name,
-      selectorType
-    )}`"
-  >
-    <radio-button :name-type="selectorType" :item-name="item.name" is-hidden />
-    <b>{{ item.name }}</b>
-    <span>{{ item.description }}</span>
-  </label>
+  <li class="ingredients__item">
+    <selector-item :item="ingredient" selectorType="filling" />
+    <item-counter
+      counter-type="ingredients"
+      :count="count"
+      @changeCount="changeCountItem"
+    />
+  </li>
 </template>
 
 <script>
-import classesHelpers from "@/common/helpers/classes";
-import RadioButton from "@/common/components/RadioButton.vue";
+import SelectorItem from "@/common/components/SelectorItem.vue";
+import ItemCounter from "@/common/components/ItemCounter.vue";
 export default {
-  name: "BuilderDoughSelector",
+  name: "BuilderIngredientsSelector",
   props: {
-    item: {
+    ingredient: {
       type: Object,
       default: () => ({}),
     },
-    selectorType: {
-      type: String,
-    },
   },
   components: {
-    RadioButton,
+    SelectorItem,
+    ItemCounter,
   },
   data() {
-    return { classesHelpers };
+    return {
+      count: 0,
+    };
+  },
+  methods: {
+    changeCountItem(event) {
+      this.count = event;
+      this.$emit("setInParent", { [this.ingredient.name]: event });
+    },
   },
 };
 </script>

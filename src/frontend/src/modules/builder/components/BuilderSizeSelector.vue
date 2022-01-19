@@ -1,17 +1,17 @@
 <template>
-  <label
-    :class="`${selectorType}__input ${selectorType}__input--${classesHelpers.getCorrectClass(
-      item.name,
-      selectorType
-    )}`"
-  >
-    <radio-button :name-type="selectorType" :item-name="item.name" is-hidden />
+  <label :class="sizeClass" @click="$emit('changeSize', className)">
+    <radio-button
+      :name-type="selectorType"
+      :item-name="item.name"
+      is-hidden
+      :checked="sizeType"
+    />
     <span>{{ item.name }}</span>
   </label>
 </template>
 
 <script>
-import classesHelpers from "@/common/helpers/classes";
+import { getCorrectClass } from "@/common/helpers/classes";
 import RadioButton from "@/common/components/RadioButton.vue";
 export default {
   name: "BuilderSizeSelector",
@@ -23,13 +23,22 @@ export default {
     selectorType: {
       type: String,
     },
+    sizeType: {
+      type: String,
+    },
   },
   components: {
     RadioButton,
   },
-  data() {
-    return { classesHelpers };
+  computed: {
+    className() {
+      return this.getCorrectClass(this.item.name, this.selectorType);
+    },
+    sizeClass() {
+      return `diameter__input diameter__input--${this.className}`;
+    },
   },
+  methods: { getCorrectClass },
 };
 </script>
 
