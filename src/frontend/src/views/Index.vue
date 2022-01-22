@@ -1,16 +1,16 @@
 <template>
   <div>
-    <HeaderLayout />
+    <AppLayout />
     <PizzaConstructor />
   </div>
 </template>
 
 <script>
 import PizzaConstructor from "@/layouts/PizzaConstructor.vue";
-import HeaderLayout from "@/layouts/HeaderLayout.vue";
+import AppLayout from "@/layouts/AppLayout.vue";
 export default {
   name: "Index",
-  components: { PizzaConstructor, HeaderLayout },
+  components: { PizzaConstructor, AppLayout },
 };
 </script>
 
