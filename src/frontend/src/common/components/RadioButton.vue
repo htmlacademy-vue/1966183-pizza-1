@@ -5,7 +5,7 @@
     :value="checkedType"
     :checked="checkedActive"
     :class="isHidden ? 'visually-hidden' : ''"
-    @click="$emit('changeSauce', getCorrectClass(itemName, nameType))"
+    @click="$emit('input', getCorrectClass(itemName, nameType))"
   />
 </template>
 
@@ -16,9 +16,11 @@ export default {
   props: {
     nameType: {
       type: String,
+      required: "",
     },
     itemName: {
       type: String,
+      required: "",
     },
     isHidden: {
       type: Boolean,
@@ -26,6 +28,7 @@ export default {
     },
     checked: {
       type: String,
+      required: true,
     },
   },
   methods: {

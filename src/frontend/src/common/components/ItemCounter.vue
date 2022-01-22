@@ -13,6 +13,7 @@
       type="button"
       class="counter__button counter__button--plus"
       @click="incCount"
+      :disabled="count === 3"
     >
       <span class="visually-hidden">Больше</span>
     </button>
@@ -25,9 +26,11 @@ export default {
   props: {
     counterType: {
       type: String,
+      required: true,
     },
     count: {
       type: Number,
+      default: 0,
     },
   },
   methods: {

@@ -1,5 +1,5 @@
 <template>
-  <span :class="selectorItemClass">
+  <span :class="selectorItemClass" :draggable="draggable">
     {{ item.name }}
   </span>
 </template>
@@ -15,6 +15,10 @@ export default {
     },
     selectorType: {
       type: String,
+    },
+    draggable: {
+      type: Boolean,
+      default: false,
     },
   },
   methods: {

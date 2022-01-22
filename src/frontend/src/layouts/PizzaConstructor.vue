@@ -66,6 +66,8 @@
                     :key="ingredient.name"
                     :ingredient="ingredient"
                     @setInParent="setCounter"
+                    :count="countOfIngredients[ingredient.name]"
+                    @changeCount="countOfIngredients[ingredient.name] = $event"
                   />
                 </ul>
               </div>
@@ -75,10 +77,11 @@
         <div class="content__pizza">
           <builder-pizza-name :value="pizzaName" @input="pizzaName = $event" />
           <builder-pizza-view
-            :fillings="fillings"
+            :fillings="nameIngredients"
             :sauce="sauceType"
             :size="sizeType"
             :dough="doughType"
+            @getName="countOfIngredients[$event] += 1"
           />
           <builder-price-counter :price="finalPrice" />
         </div>
@@ -96,6 +99,7 @@ import BuilderIngredientsSelector from "@/modules/builder/components/BuilderIngr
 import BuilderPizzaName from "@/modules/builder/components/BuilderPizzaName.vue";
 import BuilderPriceCounter from "@/modules/builder/components/BuilderPriceCounter.vue";
 import BuilderPizzaView from "@/modules/builder/components/BuilderPizzaView.vue";
+
 export default {
   name: "PizzaConstructor",
   components: {
@@ -113,7 +117,23 @@ export default {
       ingredients: pizzaJsonData.ingredients,
       sauces: pizzaJsonData.sauces,
       sizes: pizzaJsonData.sizes,
-      countOfIngredients: {},
+      countOfIngredients: {
+        ["Грибы"]: 0,
+        ["Чеддер"]: 0,
+        ["Салями"]: 0,
+        ["Ветчина"]: 0,
+        ["Ананас"]: 0,
+        ["Бекон"]: 0,
+        ["Лук"]: 0,
+        ["Чили"]: 0,
+        ["Халапеньо"]: 0,
+        ["Маслины"]: 0,
+        ["Томаты"]: 0,
+        ["Лосось"]: 0,
+        ["Моцарелла"]: 0,
+        ["Блю чиз"]: 0,
+        ["Пармезан"]: 0,
+      },
       sauceType: "tomato",
       sizeType: "small",
       doughType: "light",
@@ -124,10 +144,36 @@ export default {
     setCounter(event) {
       this.countOfIngredients = { ...this.countOfIngredients, ...event };
     },
+    pickedItem(arr, pickedName) {
+      return arr.find((item) => item.name === pickedName);
+    },
   },
   computed: {
-    fillings() {
-      return Object.keys(this.countOfIngredients);
+    nameIngredients() {
+      return Object.entries(this.countOfIngredients);
+    },
+    pickedSauce() {
+      const picked = this.sauceType === "tomato" ? "Томатный" : "Сливочный";
+      return this.pickedItem(this.sauces, picked);
+    },
+    pickedDough() {
+      const picked = this.doughType === "light" ? "Тонкое" : "Толстое";
+      const res = this.pickedItem(this.doughs, picked);
+      return res;
+    },
+    pickedSize() {
+      let picked = "";
+      switch (this.sizeType) {
+        case "big":
+          picked = "45 см";
+          break;
+        case "normal":
+          picked = "32 см";
+          break;
+        default:
+          picked = "23 см";
+      }
+      return this.pickedItem(this.sizes, picked);
     },
     finalPrice() {
       let price = 0;
@@ -136,6 +182,12 @@ export default {
         const priceOfItem = this.countOfIngredients[key] * item.price;
         price += priceOfItem;
       }
+      if (this.pickedSauce && this.pickedDough && this.pickedSize) {
+        price += this.pickedSauce.price;
+        price += this.pickedDough.price;
+        price *= this.pickedSize.multiplier;
+      }
+
       return price;
     },
   },

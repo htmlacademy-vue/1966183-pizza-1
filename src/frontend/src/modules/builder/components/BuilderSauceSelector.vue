@@ -4,7 +4,7 @@
       :name-type="selectorType"
       :item-name="item.name"
       :checked="sauceType"
-      @changeSauce="$emit('setSauce', $event)"
+      @input="$emit('setSauce', $event)"
     />
     <span>{{ item.name }}</span>
   </label>
