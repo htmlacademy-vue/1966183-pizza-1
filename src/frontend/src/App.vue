@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <!--    <Index />-->
     <AppLayout />
     <router-view />
     <router-view name="cart" />
@@ -11,7 +10,6 @@
 </template>
 
 <script>
-// import Index from "./views/Index.vue";
 import AppLayout from "@/layouts/AppLayout.vue";
 
 export default {
