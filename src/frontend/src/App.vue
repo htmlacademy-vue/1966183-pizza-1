@@ -1,20 +1,17 @@
 <template>
   <div id="app">
+    <AppLayoutHeader />
     <AppLayout />
-    <router-view />
-    <router-view name="cart" />
-    <router-view name="orders" />
-    <router-view name="profile" />
-    <router-view name="login" />
   </div>
 </template>
 
 <script>
-import AppLayout from "@/layouts/AppLayout.vue";
+import AppLayout from "./layouts/AppLayout.vue";
+import AppLayoutHeader from "./layouts/AppLayoutHeader";
 
 export default {
   name: "App",
-  components: { AppLayout },
+  components: { AppLayout, AppLayoutHeader },
 };
 </script>
 
