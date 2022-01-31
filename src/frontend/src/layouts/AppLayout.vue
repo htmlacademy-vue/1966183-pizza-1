@@ -5,13 +5,12 @@
 </template>
 
 <script>
-const defaultLayout = "AppLayoutMain";
+const defaultLayout = "AppLayoutDefault";
 export default {
   name: "AppLayout",
-  components: {},
   computed: {
     layout() {
-      const layout = defaultLayout;
+      const layout = this.$route.meta.layout || defaultLayout;
       return () => import(`@/layouts/${layout}.vue`);
     },
   },
