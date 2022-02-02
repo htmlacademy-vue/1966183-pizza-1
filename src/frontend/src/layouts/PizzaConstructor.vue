@@ -15,7 +15,7 @@
                 :item="dough"
                 selector-type="dough"
                 subtype="dough"
-                @changeDough="doughType = $event"
+                @changeDough="$store.commit('Builder/changeDough', $event)"
                 :doughType="doughType"
               />
             </div>
@@ -33,7 +33,7 @@
                 :item="size"
                 selector-type="diameter"
                 :sizeType="sizeType"
-                @changeSize="sizeType = $event"
+                @changeSize="$store.commit('Builder/changeSize', $event)"
               />
             </div>
           </div>
@@ -54,7 +54,7 @@
                   :item="sauce"
                   selector-type="sauces"
                   :sauceType="sauceType"
-                  @setSauce="sauceType = $event"
+                  @setSauce="$store.commit('Builder/setSauce', $event)"
                 />
               </div>
 
@@ -65,9 +65,14 @@
                     v-for="ingredient in ingredients"
                     :key="ingredient.name"
                     :ingredient="ingredient"
-                    @setInParent="setCounter"
+                    @setInParent="$store.commit('Builder/setCounter', $event)"
                     :count="countOfIngredients[ingredient.name]"
-                    @changeCount="countOfIngredients[ingredient.name] = $event"
+                    @changeCount="
+                      $store.commit('Builder/changeCountIngredients', {
+                        name: ingredient.name,
+                        count: $event,
+                      })
+                    "
                   />
                 </ul>
               </div>
@@ -75,15 +80,27 @@
           </div>
         </div>
         <div class="content__pizza">
-          <builder-pizza-name :value="pizzaName" @input="pizzaName = $event" />
+          <builder-pizza-name
+            :value="pizzaName"
+            @input="$store.commit('Builder/changePizzaName', $event)"
+          />
           <builder-pizza-view
             :fillings="nameIngredients"
             :sauce="sauceType"
             :size="sizeType"
             :dough="doughType"
-            @getName="countOfIngredients[$event] += 1"
+            @getName="
+              $store.commit(
+                'Builder/changeCountIngredientsByDragAndDrop',
+                $event
+              )
+            "
           />
-          <builder-price-counter :price="finalPrice" />
+          <builder-price-counter
+            :price="finalPrice"
+            @addPizza="addPizza(finalPrice, newPizza)"
+            :buttonDisabled="buttonDisabled"
+          />
         </div>
       </div>
     </form>
@@ -99,6 +116,8 @@ import BuilderIngredientsSelector from "@/modules/builder/components/BuilderIngr
 import BuilderPizzaName from "@/modules/builder/components/BuilderPizzaName.vue";
 import BuilderPriceCounter from "@/modules/builder/components/BuilderPriceCounter.vue";
 import BuilderPizzaView from "@/modules/builder/components/BuilderPizzaView.vue";
+import { mapGetters, mapMutations } from "vuex";
+import { getSauce, getSize, getDough } from "@/common/helpers/classes";
 
 export default {
   name: "PizzaConstructor",
@@ -117,63 +136,53 @@ export default {
       ingredients: pizzaJsonData.ingredients,
       sauces: pizzaJsonData.sauces,
       sizes: pizzaJsonData.sizes,
-      countOfIngredients: {
-        ["Грибы"]: 0,
-        ["Чеддер"]: 0,
-        ["Салями"]: 0,
-        ["Ветчина"]: 0,
-        ["Ананас"]: 0,
-        ["Бекон"]: 0,
-        ["Лук"]: 0,
-        ["Чили"]: 0,
-        ["Халапеньо"]: 0,
-        ["Маслины"]: 0,
-        ["Томаты"]: 0,
-        ["Лосось"]: 0,
-        ["Моцарелла"]: 0,
-        ["Блю чиз"]: 0,
-        ["Пармезан"]: 0,
-      },
-      sauceType: "tomato",
-      sizeType: "small",
-      doughType: "light",
-      pizzaName: "",
     };
   },
   methods: {
-    setCounter(event) {
-      this.countOfIngredients = { ...this.countOfIngredients, ...event };
-    },
+    ...mapMutations("Cart", ["addPizzaToBasket", "changeFinalPrice"]),
     pickedItem(arr, pickedName) {
       return arr.find((item) => item.name === pickedName);
     },
+    addPizza(price, pizza) {
+      this.addPizzaToBasket({
+        ...pizza,
+        countOfIngredients: { ...pizza.countOfIngredients },
+      });
+      this.$store.commit("Builder/setBuilderToDefault");
+    },
   },
   computed: {
+    ...mapGetters("Builder", [
+      "countOfIngredients",
+      "sauceType",
+      "sizeType",
+      "doughType",
+      "pizzaName",
+      "allIngredients",
+    ]),
+    newPizza() {
+      return this.allIngredients;
+    },
     nameIngredients() {
       return Object.entries(this.countOfIngredients);
     },
     pickedSauce() {
-      const picked = this.sauceType === "tomato" ? "Томатный" : "Сливочный";
+      const picked = getSauce(this.sauceType);
       return this.pickedItem(this.sauces, picked);
     },
     pickedDough() {
-      const picked = this.doughType === "light" ? "Тонкое" : "Толстое";
-      const res = this.pickedItem(this.doughs, picked);
-      return res;
+      const picked = getDough(this.doughType);
+      return this.pickedItem(this.doughs, picked);
     },
     pickedSize() {
-      let picked = "";
-      switch (this.sizeType) {
-        case "big":
-          picked = "45 см";
-          break;
-        case "normal":
-          picked = "32 см";
-          break;
-        default:
-          picked = "23 см";
-      }
+      let picked = getSize(this.sizeType);
       return this.pickedItem(this.sizes, picked);
+    },
+    buttonDisabled() {
+      return (
+        Object.values(this.countOfIngredients).every((item) => item === 0) ||
+        this.pizzaName === ""
+      );
     },
     finalPrice() {
       let price = 0;
@@ -187,7 +196,7 @@ export default {
         price += this.pickedDough.price;
         price *= this.pickedSize.multiplier;
       }
-
+      this.$store.commit("Builder/setPizzaPrice", price);
       return price;
     },
   },

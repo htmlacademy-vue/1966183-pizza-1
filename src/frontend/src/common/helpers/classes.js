@@ -59,6 +59,25 @@ export const getIngredientClass = (name) => {
   }
 };
 
+export const getSauce = (type) => {
+  return type === "tomato" ? "Томатный" : "Сливочный";
+};
+
+export const getSize = (type) => {
+  switch (type) {
+    case "big":
+      return "45 см";
+    case "normal":
+      return "32 см";
+    default:
+      return "23 см";
+  }
+};
+
+export const getDough = (type) => {
+  return type === "light" ? "Тонкое" : "Толстое";
+};
+
 export const getCorrectClass = (name, selectorType) => {
   switch (selectorType) {
     case "dough":
