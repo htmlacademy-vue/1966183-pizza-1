@@ -47,16 +47,14 @@
       <b>{{ pizza.price }} ₽</b>
     </div>
 
-    <div class="cart-list__button">
-      <router-link to="/">
-        <button
-          type="button"
-          class="cart-list__edit"
-          @click="$emit('changePizza', pizzasInBasket[index])"
-        >
-          Изменить
-        </button>
-      </router-link>
+    <div class="cart-list__button" @click="$router.push('/')">
+      <button
+        type="button"
+        class="cart-list__edit"
+        @click="$emit('changePizza', pizzasInBasket)"
+      >
+        Изменить
+      </button>
     </div>
   </li>
 </template>
@@ -70,11 +68,7 @@ export default {
       required: true,
     },
     pizzasInBasket: {
-      type: Array,
-      required: true,
-    },
-    index: {
-      type: Number,
+      type: Object,
       required: true,
     },
     pizzasCountAndPrice: {

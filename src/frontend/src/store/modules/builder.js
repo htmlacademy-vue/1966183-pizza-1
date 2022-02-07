@@ -1,25 +1,12 @@
 import { builderToDefaultState } from "../helpers";
+import pizzaJsonData from "@/static/pizza.json";
+import { getSauce, getSize, getDough } from "@/common/helpers/classes";
+const { dough, ingredients, sauces, sizes } = pizzaJsonData;
 
 export default {
   namespaced: true,
   state: {
-    countOfIngredients: {
-      ["Грибы"]: 0,
-      ["Чеддер"]: 0,
-      ["Салями"]: 0,
-      ["Ветчина"]: 0,
-      ["Ананас"]: 0,
-      ["Бекон"]: 0,
-      ["Лук"]: 0,
-      ["Чили"]: 0,
-      ["Халапеньо"]: 0,
-      ["Маслины"]: 0,
-      ["Томаты"]: 0,
-      ["Лосось"]: 0,
-      ["Моцарелла"]: 0,
-      ["Блю чиз"]: 0,
-      ["Пармезан"]: 0,
-    },
+    countOfIngredients: {},
     sauceType: "tomato",
     sizeType: "small",
     doughType: "light",
@@ -45,6 +32,27 @@ export default {
     },
     allIngredients(state) {
       return state;
+    },
+    price(state) {
+      const pickedItem = (arr, pickedName) => {
+        return arr.find((item) => item.name === pickedName);
+      };
+      const pickedSauce = pickedItem(sauces, getSauce(state.sauceType));
+      const pickedDough = pickedItem(dough, getDough(state.doughType));
+      const pickedSize = pickedItem(sizes, getSize(state.sizeType));
+      let price = 0;
+      for (let key in state.countOfIngredients) {
+        const item = ingredients.find((ing) => ing.name === key);
+        const priceOfItem = state.countOfIngredients[key] * item.price;
+        price += priceOfItem;
+      }
+      if (pickedSauce && pickedDough && pickedSize) {
+        price += pickedSauce.price;
+        price += pickedDough.price;
+        price *= pickedSize.multiplier;
+      }
+      state.price = price;
+      return price;
     },
   },
   mutations: {
@@ -79,9 +87,6 @@ export default {
       state.sauceType = pizzaState.sauceType;
       state.doughType = pizzaState.doughType;
       state.id = pizzaState.id;
-    },
-    setPizzaPrice(state, money) {
-      state.price = money;
     },
   },
   actions: {},

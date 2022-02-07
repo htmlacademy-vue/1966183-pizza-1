@@ -22,6 +22,7 @@ export default {
     },
     buttonDisabled: {
       type: Boolean,
+      default: true,
     },
   },
 };

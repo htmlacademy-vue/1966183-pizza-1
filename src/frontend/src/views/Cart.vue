@@ -15,11 +15,10 @@
             v-for="(pizza, index) in correctPizzasFormat"
             :key="pizza.id"
             :pizza="pizza"
-            :index="index"
-            :pizzas-in-basket="pizzasInBasket"
+            :pizzas-in-basket="pizzasInBasket[index]"
             :pizzas-count-and-price="pizzasCountAndPrice"
-            @changePizza="$store.commit('Builder/setBuilderToChange', $event)"
-            @incButtonClick="$store.commit('Cart/incCountPizza', $event)"
+            @changePizza="setBuilderToChange"
+            @incButtonClick="incCountPizza"
             @decButtonClick="incrementPizzaCount($event)"
           />
         </ul>
@@ -29,12 +28,8 @@
             <CartAdditionalProduct
               v-for="type in types"
               :key="type.description"
-              @decrementValue="
-                $store.commit('Cart/decCountAdditionalProduct', $event)
-              "
-              @incrementValue="
-                $store.commit('Cart/incCountAdditionalProduct', $event)
-              "
+              @decrementValue="decCountAdditionalProduct"
+              @incrementValue="incCountAdditionalProduct"
               :type="type"
               :count="additionalProduct[type.name].count"
               :price="additionalProduct[type.name].price"
@@ -43,36 +38,11 @@
         </div>
         <CartClientsInfo
           :clients-info="clientsInfo"
-          @changeDelivery="
-            $store.commit('Cart/changeClientsInfoItem', {
-              value: $event.value,
-              name: $event.type,
-            })
-          "
-          @changePhone="
-            $store.commit('Cart/changeClientsInfoItem', {
-              value: $event.value,
-              name: $event.type,
-            })
-          "
-          @changeStreet="
-            $store.commit('Cart/changeClientsInfoItem', {
-              value: $event.value,
-              name: $event.type,
-            })
-          "
-          @changeHouse="
-            $store.commit('Cart/changeClientsInfoItem', {
-              value: $event.value,
-              name: $event.type,
-            })
-          "
-          @changeFlat="
-            $store.commit('Cart/changeClientsInfoItem', {
-              value: $event.value,
-              name: $event.type,
-            })
-          "
+          @changeDelivery="changeClientsInfoItem"
+          @changePhone="changeClientsInfoItem"
+          @changeStreet="changeClientsInfoItem"
+          @changeHouse="changeClientsInfoItem"
+          @changeFlat="changeClientsInfoItem"
         />
       </div>
     </main>
@@ -145,6 +115,24 @@ export default {
       "deletePizza",
       "decCountPizza",
     ]),
+    setBuilderToChange(event) {
+      this.$store.commit("Builder/setBuilderToChange", event);
+    },
+    incCountPizza(event) {
+      this.$store.commit("Cart/incCountPizza", event);
+    },
+    decCountAdditionalProduct(event) {
+      this.$store.commit("Cart/decCountAdditionalProduct", event);
+    },
+    incCountAdditionalProduct(event) {
+      this.$store.commit("Cart/incCountAdditionalProduct", event);
+    },
+    changeClientsInfoItem(event) {
+      this.$store.commit("Cart/changeClientsInfoItem", {
+        value: event.value,
+        name: event.type,
+      });
+    },
     incrementPizzaCount(id) {
       this.decCountPizza(id);
       if (this.pizzasCountAndPrice[id].count === 0) {
