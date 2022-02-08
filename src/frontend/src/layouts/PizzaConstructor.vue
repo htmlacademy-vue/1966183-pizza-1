@@ -105,7 +105,7 @@ import BuilderIngredientsSelector from "@/modules/builder/components/BuilderIngr
 import BuilderPizzaName from "@/modules/builder/components/BuilderPizzaName.vue";
 import BuilderPriceCounter from "@/modules/builder/components/BuilderPriceCounter.vue";
 import BuilderPizzaView from "@/modules/builder/components/BuilderPizzaView.vue";
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 import Vue from "vue";
 
 export default {
@@ -130,6 +130,7 @@ export default {
   methods: {
     ...mapMutations("Cart", ["addPizzaToBasket", "changeFinalPrice"]),
     addPizza(price, pizza) {
+      this.$store.commit("Builder/setPizzaPrice", price);
       this.addPizzaToBasket({
         ...pizza,
         countOfIngredients: { ...pizza.countOfIngredients },
@@ -168,15 +169,14 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("Builder", [
+    ...mapState("Builder", [
       "countOfIngredients",
       "sauceType",
       "sizeType",
       "doughType",
       "pizzaName",
-      "allIngredients",
-      "price",
     ]),
+    ...mapGetters("Builder", ["allIngredients", "price"]),
     newPizza() {
       return this.allIngredients;
     },

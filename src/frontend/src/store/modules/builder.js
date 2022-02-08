@@ -15,21 +15,6 @@ export default {
     id: "",
   },
   getters: {
-    countOfIngredients(state) {
-      return state.countOfIngredients;
-    },
-    sauceType(state) {
-      return state.sauceType;
-    },
-    sizeType(state) {
-      return state.sizeType;
-    },
-    doughType(state) {
-      return state.doughType;
-    },
-    pizzaName(state) {
-      return state.pizzaName;
-    },
     allIngredients(state) {
       return state;
     },
@@ -51,7 +36,6 @@ export default {
         price += pickedDough.price;
         price *= pickedSize.multiplier;
       }
-      state.price = price;
       return price;
     },
   },
@@ -66,7 +50,7 @@ export default {
       state.sauceType = newSauce;
     },
     changeCountIngredients(state, { count, name }) {
-      state.countOfIngredients[name] = count;
+      state.countOfIngredients = { ...state.countOfIngredients, [name]: count };
     },
     changeCountIngredientsByDragAndDrop(state, name) {
       state.countOfIngredients[name] += 1;
@@ -87,6 +71,9 @@ export default {
       state.sauceType = pizzaState.sauceType;
       state.doughType = pizzaState.doughType;
       state.id = pizzaState.id;
+    },
+    setPizzaPrice(state, price) {
+      state.price = price;
     },
   },
   actions: {},

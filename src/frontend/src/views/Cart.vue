@@ -19,7 +19,7 @@
             :pizzas-count-and-price="pizzasCountAndPrice"
             @changePizza="setBuilderToChange"
             @incButtonClick="incCountPizza"
-            @decButtonClick="incrementPizzaCount($event)"
+            @decButtonClick="decrementPizzaCount($event)"
           />
         </ul>
 
@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 import { getSauce, getSize, getDough } from "@/common/helpers/classes";
 import CartAdditionalProduct from "../modules/cart/CartAdditionalProduct";
 import CartClientsInfo from "../modules/cart/CartClientsInfo";
@@ -80,13 +80,13 @@ export default {
     };
   },
   computed: {
-    ...mapGetters("Cart", [
+    ...mapState("Cart", [
       "pizzasInBasket",
-      "finalPrice",
       "additionalProduct",
       "clientsInfo",
       "pizzasCountAndPrice",
     ]),
+    ...mapGetters("Cart", ["finalPrice"]),
     correctPizzasFormat() {
       return this.pizzasInBasket.map((pizza) => {
         return {
@@ -112,7 +112,6 @@ export default {
     ...mapMutations("Cart", [
       "incCountAdditionalProduct",
       "decCountAdditionalProduct",
-      "deletePizza",
       "decCountPizza",
     ]),
     setBuilderToChange(event) {
@@ -133,11 +132,11 @@ export default {
         name: event.type,
       });
     },
-    incrementPizzaCount(id) {
+    decrementPizzaCount(id) {
       this.decCountPizza(id);
-      if (this.pizzasCountAndPrice[id].count === 0) {
-        this.deletePizza(id);
-      }
+      // if (this.pizzasCountAndPrice[id].count === 0) {
+      //   this.deletePizza(id);
+      // }
     },
     closePopup() {
       this.isPopupOpen = false;

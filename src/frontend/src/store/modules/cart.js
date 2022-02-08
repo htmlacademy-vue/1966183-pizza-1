@@ -42,18 +42,6 @@ export default {
       }
       return finalPrice;
     },
-    pizzasInBasket(state) {
-      return state.pizzasInBasket;
-    },
-    additionalProduct(state) {
-      return state.additionalProduct;
-    },
-    clientsInfo(state) {
-      return state.clientsInfo;
-    },
-    pizzasCountAndPrice(state) {
-      return state.pizzasCountAndPrice;
-    },
   },
   mutations: {
     addPizzaToBasket(state, newPizza) {
@@ -94,17 +82,17 @@ export default {
         ...state.pizzasCountAndPrice[id],
         count: state.pizzasCountAndPrice[id].count - 1,
       };
+      if (state.pizzasCountAndPrice[id].count === 0) {
+        delete state.pizzasCountAndPrice[id];
+        state.pizzasCountAndPrice = { ...state.pizzasCountAndPrice };
+        state.pizzasInBasket = [...state.pizzasInBasket].filter(
+          (item) => item.id !== id
+        );
+        state.pizzasInBasket = [...state.pizzasInBasket];
+      }
     },
     changeClientsInfoItem(state, { name, value }) {
       state.clientsInfo[name] = value;
-    },
-    deletePizza(state, id) {
-      delete state.pizzasCountAndPrice[id];
-      state.pizzasCountAndPrice = { ...state.pizzasCountAndPrice };
-      state.pizzasInBasket = [...state.pizzasInBasket].filter(
-        (item) => item.id !== id
-      );
-      state.pizzasInBasket = [...state.pizzasInBasket];
     },
   },
   actions: {},
