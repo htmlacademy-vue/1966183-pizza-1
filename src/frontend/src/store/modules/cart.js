@@ -1,30 +1,18 @@
 import { nanoid } from "nanoid";
+import IngredientsProducts from "./ingredients-products";
 export default {
   namespaced: true,
   state: {
     pizzasInBasket: [],
     pizzasCountAndPrice: {},
     finalPrice: 0,
-    additionalProduct: {
-      cola: {
-        price: 56,
-        count: 0,
-      },
-      sauce: {
-        price: 30,
-        count: 0,
-      },
-      potato: {
-        price: 56,
-        count: 0,
-      },
-    },
+    additionalProduct: {},
     clientsInfo: {
-      delivery: "",
-      phone: "",
       street: "",
-      house: "",
+      building: "",
       flat: "",
+      phone: "",
+      name: "Новый адрес",
     },
   },
   getters: {
@@ -59,11 +47,23 @@ export default {
         state.pizzasInBasket.push({ ...newPizza, id });
         state.pizzasCountAndPrice = {
           ...state.pizzasCountAndPrice,
-          [id]: { count: 1, price: newPizza.price, id },
+          [id]: { count: newPizza.quantity || 1, price: newPizza.price, id },
         };
       }
     },
+    setAdditionalProductFromOrders(state, miscState) {
+      state.additionalProduct = { ...miscState };
+    },
     incCountAdditionalProduct(state, type) {
+      if (!state.additionalProduct[type]) {
+        const price = IngredientsProducts.state.misc.find(
+          (item) => item.name === type
+        ).price;
+        state.additionalProduct = {
+          ...state.additionalProduct,
+          [type]: { count: 0, price },
+        };
+      }
       state.additionalProduct[type].count += 1;
     },
     decCountAdditionalProduct(state, type) {
@@ -91,8 +91,30 @@ export default {
         state.pizzasInBasket = [...state.pizzasInBasket];
       }
     },
-    changeClientsInfoItem(state, { name, value }) {
-      state.clientsInfo[name] = value;
+    changeClientsInfoItem(state, newValue) {
+      state.clientsInfo = { ...newValue };
+    },
+    setAdditionalProduct(state, payload) {
+      for (let i = 0; i < payload.length; i++) {
+        const prop = payload[i];
+        state.additionalProduct = {
+          ...state.additionalProduct,
+          [prop.name]: { price: prop.price, count: 0 },
+        };
+      }
+    },
+    setStateToDefault(state) {
+      state.pizzasInBasket = [];
+      state.pizzasCountAndPrice = {};
+      state.finalPrice = 0;
+      state.additionalProduct = {};
+      state.clientsInfo = {
+        street: "",
+        building: "",
+        flat: "",
+        phone: "",
+        name: "Новый адрес",
+      };
     },
   },
   actions: {},

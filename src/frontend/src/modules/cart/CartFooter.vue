@@ -13,7 +13,12 @@
     </div>
 
     <div class="footer__submit">
-      <button type="submit" class="button" @click.prevent="$emit('show-popup')">
+      <button
+        type="submit"
+        class="button"
+        @click.prevent="$emit('make-order')"
+        :disabled="orderButtonDisabled"
+      >
         Оформить заказ
       </button>
     </div>
@@ -27,6 +32,10 @@ export default {
     finalPrice: {
       type: Number,
       required: true,
+    },
+    orderButtonDisabled: {
+      type: Boolean,
+      default: true,
     },
   },
 };

@@ -14,7 +14,21 @@
       <router-link to="/cart">{{ finalPrice }} ₽</router-link>
     </div>
     <div class="header__user">
-      <router-link class="header__login" to="/login">
+      <router-link to="/profile" v-if="isAuthorized">
+        <picture>
+          <img
+            :src="userInfo.avatar"
+            :alt="userInfo.name"
+            width="32"
+            height="32"
+          />
+        </picture>
+        <span>{{ userInfo.name }}</span>
+      </router-link>
+      <router-link to="/" v-if="isAuthorized" class="header__logout"
+        ><span @click="logout">Выйти</span></router-link
+      >
+      <router-link class="header__login" to="/login" v-if="!isAuthorized">
         <span>Войти</span>
       </router-link>
     </div>
@@ -22,14 +36,34 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
+import JwtService from "../services/jwt.service";
 
 export default {
   name: "AppLayoutHeader",
   computed: {
     ...mapGetters("Cart", ["finalPrice"]),
+    ...mapState("Auth", ["userInfo"]),
+    isAuthorized() {
+      return Object.keys(this.userInfo).length !== 0;
+    },
+  },
+  methods: {
+    logout() {
+      const token = JwtService.getToken();
+      this.$store.dispatch("Auth/logout", token);
+    },
   },
 };
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+.header__user {
+  display: flex;
+  a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+</style>

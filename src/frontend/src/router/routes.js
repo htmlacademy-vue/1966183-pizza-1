@@ -1,3 +1,13 @@
+import JwtService from "../services/jwt.service";
+
+const checkRoute = (to, next, value) => {
+  const token = JwtService.getToken();
+  if (to.path === `${value}` && !token) {
+    next({ path: "/" });
+  }
+  next();
+};
+
 export const routes = [
   {
     path: "/cart",
@@ -14,6 +24,9 @@ export const routes = [
     meta: {
       layout: "AppLayoutMain",
     },
+    beforeEnter: (to, from, next) => {
+      checkRoute(to, next, "/orders");
+    },
   },
   {
     path: "/profile",
@@ -22,6 +35,9 @@ export const routes = [
     meta: {
       layout: "AppLayoutMain",
     },
+    beforeEnter: (to, from, next) => {
+      checkRoute(to, next, "/profile");
+    },
   },
   {
     path: "/login",
@@ -29,6 +45,13 @@ export const routes = [
     component: () => import("../views/Login.vue"),
     meta: {
       layout: "AppLayoutClear",
+    },
+    beforeEnter: (to, from, next) => {
+      const token = JwtService.getToken();
+      if (to.path === "/login" && token) {
+        next({ path: "/" });
+      }
+      next();
     },
   },
   {
