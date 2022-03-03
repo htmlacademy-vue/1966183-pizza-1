@@ -44,27 +44,20 @@ export default {
     },
   },
   actions: {
-    async getAllFillings(context) {
-      const ingredients = await IngredientsApiService.getIngredients();
-      if (ingredients) {
+    getAllFillings(context) {
+      Promise.all([
+        IngredientsApiService.getIngredients(),
+        IngredientsApiService.getSauces(),
+        IngredientsApiService.getDough(),
+        IngredientsApiService.getSizes(),
+        MiscApiService.getMisc(),
+      ]).then(([ingredients, sauces, dough, sizes, misc]) => {
         context.commit("setIngredients", ingredients);
-      }
-      const sauces = await IngredientsApiService.getSauces();
-      if (sauces) {
         context.commit("setSauces", sauces);
-      }
-      const dough = await IngredientsApiService.getDough();
-      if (dough) {
         context.commit("setDough", dough);
-      }
-      const sizes = await IngredientsApiService.getSizes();
-      if (sizes) {
         context.commit("setSizes", sizes);
-      }
-      const misc = await MiscApiService.getMisc();
-      if (misc) {
         context.commit("setMisc", misc);
-      }
+      });
     },
   },
 };

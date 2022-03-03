@@ -1,8 +1,8 @@
-export const builderToDefaultState = () => {
+export const builderToDefaultState = (ingredients) => {
   return {
     ingredients: (() => {
       const res = [];
-      for (let i = 1; i <= 15; i++) {
+      for (let i = 1; i <= ingredients.length; i++) {
         res.push({ ingredientId: i, quantity: 0 });
       }
       return res;

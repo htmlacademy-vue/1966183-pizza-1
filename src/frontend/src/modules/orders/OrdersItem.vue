@@ -64,6 +64,11 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      token: JwtService.getToken(),
+    };
+  },
   components: { OrderListItem, OrderAdditionalListItem },
   computed: {
     ...mapGetters("IngredientsProducts", [
@@ -78,22 +83,31 @@ export default {
         ? this.order.orderAddress.name
         : "Самовывоз";
     },
-    token() {
-      return JwtService.getToken();
+    referencesLoaded() {
+      return (
+        this.sizes.length !== 0 &&
+        this.sauces.length !== 0 &&
+        this.dough.length !== 0 &&
+        this.ingredients.length !== 0 &&
+        this.misc.length !== 0
+      );
     },
     finalPrice() {
-      return getPizzasPrice(
-        this.order,
-        {
-          sizes: this.sizes,
-          sauces: this.sauces,
-          dough: this.dough,
-          ingredients: this.ingredients,
-          misc: this.misc,
-        },
-        true,
-        true
-      );
+      if (this.referencesLoaded) {
+        return getPizzasPrice(
+          this.order,
+          {
+            sizes: this.sizes,
+            sauces: this.sauces,
+            dough: this.dough,
+            ingredients: this.ingredients,
+            misc: this.misc,
+          },
+          true,
+          true
+        );
+      }
+      return 0;
     },
   },
   methods: {
@@ -122,6 +136,7 @@ export default {
         const newPizza = { ...item, id: "", price };
         this.$store.commit("Cart/addPizzaToBasket", newPizza);
       });
+      this.$router.push("/cart");
     },
   },
 };

@@ -69,8 +69,8 @@ export default {
     changePizzaName(state, name) {
       state.name = name;
     },
-    setBuilderToDefault(state) {
-      Object.assign(state, builderToDefaultState());
+    setBuilderToDefault(state, ingredients) {
+      Object.assign(state, builderToDefaultState(ingredients));
     },
     setBuilderToChange(state, pizzaState) {
       state.name = pizzaState.name;

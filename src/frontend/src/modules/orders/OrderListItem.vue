@@ -45,6 +45,14 @@ export default {
       "sizes",
       "ingredients",
     ]),
+    referencesLoaded() {
+      return (
+        this.sizes.length !== 0 &&
+        this.sauces.length !== 0 &&
+        this.dough.length !== 0 &&
+        this.ingredients.length !== 0
+      );
+    },
     sizeType() {
       return findNameById(this.pizza.sizeId, this.sizes);
     },
@@ -55,15 +63,21 @@ export default {
       return findNameById(this.pizza.doughId, this.dough);
     },
     ingredientsType() {
-      return getIngredientsString(this.pizza.ingredients, this.ingredients);
+      if (this.ingredients.length !== 0 && this.pizza.ingredients) {
+        return getIngredientsString(this.pizza.ingredients, this.ingredients);
+      }
+      return "";
     },
     pizzaPrice() {
-      return getOnePizzaPrice(this.pizza, {
-        sizes: this.sizes,
-        sauces: this.sauces,
-        dough: this.dough,
-        ingredients: this.ingredients,
-      });
+      if (this.referencesLoaded) {
+        return getOnePizzaPrice(this.pizza, {
+          sizes: this.sizes,
+          sauces: this.sauces,
+          dough: this.dough,
+          ingredients: this.ingredients,
+        });
+      }
+      return 0;
     },
   },
 };

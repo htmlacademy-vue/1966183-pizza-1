@@ -1,4 +1,5 @@
 import AuthApiService from "@/services/auth";
+import JwtService from "../../services/jwt.service";
 
 export default {
   namespaced: true,
@@ -34,6 +35,8 @@ export default {
       const response = await AuthApiService.whoAmI(token);
       if (response) {
         context.commit("setUserInfo", response);
+      } else {
+        JwtService.destroyToken();
       }
     },
     async logout(context, token) {

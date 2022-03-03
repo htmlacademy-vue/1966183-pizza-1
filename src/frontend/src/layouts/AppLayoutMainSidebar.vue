@@ -9,10 +9,16 @@
       />
     </router-link>
 
-    <router-link to="/orders" :class="historyLinkClass"
+    <router-link
+      to="/orders"
+      active-class="layout__link layout__link--active"
+      class="layout__link"
       >История заказов</router-link
     >
-    <router-link to="/profile" :class="profileLinkClass"
+    <router-link
+      to="/profile"
+      active-class="layout__link layout__link--active"
+      class="layout__link"
       >Мои данные</router-link
     >
   </div>
@@ -21,18 +27,6 @@
 <script>
 export default {
   name: "AppLayoutMainSidebar",
-  computed: {
-    historyLinkClass() {
-      return this.$router.currentRoute.path === "/orders"
-        ? "layout__link layout__link--active"
-        : "layout__link";
-    },
-    profileLinkClass() {
-      return this.$router.currentRoute.path === "/profile"
-        ? "layout__link layout__link--active"
-        : "layout__link";
-    },
-  },
 };
 </script>
 

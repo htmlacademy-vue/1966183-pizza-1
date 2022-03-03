@@ -90,6 +90,7 @@ export default {
       isPopupOpen: false,
       showStreetNotif: false,
       showBuildingNotif: false,
+      token: JwtService.getToken(),
     };
   },
   computed: {
@@ -104,6 +105,9 @@ export default {
     ...mapGetters("Cart", ["finalPrice"]),
     infoForm() {
       return { ...this.clientsInfo };
+    },
+    isAuth() {
+      return Object.keys(this.userInfo).length !== 0;
     },
     correctPizzasFormat() {
       return this.pizzasInBasket.map((pizza) => {
@@ -120,9 +124,6 @@ export default {
           id: pizza.id,
         };
       });
-    },
-    token() {
-      return JwtService.getToken();
     },
     orderButtonDisabled() {
       return this.pizzasInBasket.length === 0;
@@ -155,6 +156,7 @@ export default {
     },
     closePopup() {
       this.isPopupOpen = false;
+      if (!this.isAuth) this.$router.push("/");
     },
     async makeOrder() {
       this.showStreetNotif = false;
@@ -171,11 +173,12 @@ export default {
       if (this.clientsInfo.name !== "Заберу сам") {
         if (address.street === "") {
           this.showStreetNotif = true;
+          return;
         }
         if (address.building === "") {
           this.showBuildingNotif = true;
+          return;
         }
-        return;
       }
       const ordersBodyRequest = {
         userId: this.userInfo.id,
@@ -188,13 +191,17 @@ export default {
             doughId: item.doughId,
             sizeId: item.sizeId,
             quantity: this.pizzasCountAndPrice[item.id].count,
-            ingredients: [...item.ingredients],
+            ingredients: [...item.ingredients].map((item) => {
+              return {
+                ingredientId: item.ingredientId,
+                quantity: item.quantity,
+              };
+            }),
           };
         }),
         misc: miscBasketToMiscOrder(this.additionalProduct, this.misc),
       };
-      const isAuth = Object.keys(this.userInfo).length !== 0;
-      if (isAuth) {
+      if (this.isAuth) {
         const res = await this.$store.dispatch("Orders/createOrder", {
           body: ordersBodyRequest,
           token: this.token,

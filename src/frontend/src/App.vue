@@ -13,10 +13,10 @@ import JwtService from "./services/jwt.service";
 export default {
   name: "App",
   components: { AppLayout },
-  computed: {
-    token() {
-      return JwtService.getToken();
-    },
+  data() {
+    return {
+      token: JwtService.getToken(),
+    };
   },
   mounted() {
     if (this.token) {
@@ -24,14 +24,6 @@ export default {
       this.$store.dispatch("Addresses/getAddresses", this.token);
     }
     this.$store.dispatch("IngredientsProducts/getAllFillings");
-  },
-  watch: {
-    token(val) {
-      if (val) {
-        this.$store.dispatch("Auth/getInfo", this.token);
-        this.$store.dispatch("Addresses/getAddresses", this.token);
-      }
-    },
   },
 };
 </script>

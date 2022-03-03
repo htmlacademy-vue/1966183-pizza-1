@@ -16,18 +16,13 @@ import { mapState } from "vuex";
 export default {
   name: "Orders",
   components: { OrdersItem },
+  data() {
+    return {
+      token: JwtService.getToken(),
+    };
+  },
   computed: {
     ...mapState("Orders", ["orders"]),
-    token() {
-      return JwtService.getToken();
-    },
-  },
-  watch: {
-    token(val) {
-      if (val) {
-        this.$store.dispatch("Orders/getOrders", val);
-      }
-    },
   },
   mounted() {
     if (this.token) {

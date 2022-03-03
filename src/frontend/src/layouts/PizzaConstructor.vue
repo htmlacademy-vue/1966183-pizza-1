@@ -142,7 +142,7 @@ export default {
         ...this.newPizza,
         ingredients: [...this.newPizza.ingredients],
       });
-      this.$store.commit("Builder/setBuilderToDefault");
+      this.$store.commit("Builder/setBuilderToDefault", this.ingredients);
     },
     changeDough(event) {
       const id = findIdByClass(event, this.doughs, getDough);

@@ -60,6 +60,7 @@ export default {
       isAddressFormOpen: false,
       formData: undefined,
       addrNumber: undefined,
+      token: JwtService.getToken(),
     };
   },
   computed: {
@@ -70,16 +71,6 @@ export default {
     },
     totalSize() {
       return this.addresses.allIds.length;
-    },
-    token() {
-      return JwtService.getToken();
-    },
-  },
-  watch: {
-    token(val) {
-      if (val) {
-        this.$store.dispatch("Addresses/getAddresses");
-      }
     },
   },
   methods: {
