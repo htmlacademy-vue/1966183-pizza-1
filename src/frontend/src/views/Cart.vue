@@ -26,39 +26,50 @@
         <div class="cart__additional">
           <ul class="additional-list">
             <CartAdditionalProduct
-              v-for="type in types"
-              :key="type.description"
+              v-for="type in misc"
+              :key="type.name"
               @decrementValue="decCountAdditionalProduct"
               @incrementValue="incCountAdditionalProduct"
               :type="type"
-              :count="additionalProduct[type.name].count"
-              :price="additionalProduct[type.name].price"
+              :count="
+                additionalProduct[type.name]
+                  ? additionalProduct[type.name].count
+                  : 0
+              "
+              :price="type.price"
             />
           </ul>
         </div>
         <CartClientsInfo
-          :clients-info="clientsInfo"
-          @changeDelivery="changeClientsInfoItem"
-          @changePhone="changeClientsInfoItem"
-          @changeStreet="changeClientsInfoItem"
-          @changeHouse="changeClientsInfoItem"
-          @changeFlat="changeClientsInfoItem"
+          @update:infoForm="changeClientsInfo"
+          :infoForm="infoForm"
+          :is-street-empty-prop="showStreetNotif"
+          :is-building-empty-prop="showBuildingNotif"
         />
       </div>
     </main>
-    <CartFooter :final-price="finalPrice" @show-popup="isPopupOpen = true" />
+    <CartFooter
+      :final-price="finalPrice"
+      @make-order="makeOrder"
+      :order-button-disabled="orderButtonDisabled"
+    />
     <CartOrderPlaced v-if="isPopupOpen" @close-popup="closePopup" />
   </form>
 </template>
 
 <script>
 import { mapGetters, mapMutations, mapState } from "vuex";
-import { getSauce, getSize, getDough } from "@/common/helpers/classes";
 import CartAdditionalProduct from "../modules/cart/CartAdditionalProduct";
 import CartClientsInfo from "../modules/cart/CartClientsInfo";
 import CartOrderPlaced from "../modules/cart/CartOrderPlaced";
 import CartFooter from "../modules/cart/CartFooter";
 import CartPizzaAndCounterItem from "../modules/cart/CartPizzaAndCounterItem";
+import {
+  findNameById,
+  getIngredientsString,
+  miscBasketToMiscOrder,
+} from "../common/helpers/pizzasFormat";
+import JwtService from "../services/jwt.service";
 
 export default {
   name: "Cart",
@@ -77,6 +88,9 @@ export default {
         { name: "potato", description: "Картошка из печи" },
       ],
       isPopupOpen: false,
+      showStreetNotif: false,
+      showBuildingNotif: false,
+      token: JwtService.getToken(),
     };
   },
   computed: {
@@ -86,26 +100,33 @@ export default {
       "clientsInfo",
       "pizzasCountAndPrice",
     ]),
+    ...mapState("IngredientsProducts", ["misc", "fillings"]),
+    ...mapState("Auth", ["userInfo"]),
     ...mapGetters("Cart", ["finalPrice"]),
+    infoForm() {
+      return { ...this.clientsInfo };
+    },
+    isAuth() {
+      return Object.keys(this.userInfo).length !== 0;
+    },
     correctPizzasFormat() {
       return this.pizzasInBasket.map((pizza) => {
         return {
-          name: pizza.pizzaName,
-          sauce: getSauce(pizza.sauceType),
-          dough: getDough(pizza.doughType),
-          size: getSize(pizza.sizeType),
-          ingredients: Object.keys(pizza.countOfIngredients)
-            .filter((name) => {
-              if (pizza.countOfIngredients[name] !== 0) {
-                return true;
-              }
-            })
-            .join(",")
-            .toLowerCase(),
+          name: pizza.name,
+          sauce: findNameById(pizza.sauceId, this.fillings.sauces),
+          dough: findNameById(pizza.doughId, this.fillings.dough),
+          size: findNameById(pizza.sizeId, this.fillings.sizes),
+          ingredients: getIngredientsString(
+            pizza.ingredients,
+            this.fillings.ingredients
+          ),
           price: pizza.price,
           id: pizza.id,
         };
       });
+    },
+    orderButtonDisabled() {
+      return this.pizzasInBasket.length === 0;
     },
   },
   methods: {
@@ -113,6 +134,7 @@ export default {
       "incCountAdditionalProduct",
       "decCountAdditionalProduct",
       "decCountPizza",
+      "setStateToDefault",
     ]),
     setBuilderToChange(event) {
       this.$store.commit("Builder/setBuilderToChange", event);
@@ -126,20 +148,87 @@ export default {
     incCountAdditionalProduct(event) {
       this.$store.commit("Cart/incCountAdditionalProduct", event);
     },
-    changeClientsInfoItem(event) {
-      this.$store.commit("Cart/changeClientsInfoItem", {
-        value: event.value,
-        name: event.type,
-      });
+    changeClientsInfo(event) {
+      this.$store.commit("Cart/changeClientsInfoItem", event);
     },
     decrementPizzaCount(id) {
       this.decCountPizza(id);
-      // if (this.pizzasCountAndPrice[id].count === 0) {
-      //   this.deletePizza(id);
-      // }
     },
     closePopup() {
       this.isPopupOpen = false;
+      if (!this.isAuth) this.$router.push("/");
+    },
+    async makeOrder() {
+      this.showStreetNotif = false;
+      this.showBuildingNotif = false;
+      const address =
+        this.clientsInfo.name === "Заберу сам"
+          ? undefined
+          : {
+              street: this.clientsInfo.street,
+              building: this.clientsInfo.building,
+              flat: this.clientsInfo.flat,
+              comment: this.clientsInfo.comment,
+            };
+      if (this.clientsInfo.name !== "Заберу сам") {
+        if (address.street === "") {
+          this.showStreetNotif = true;
+          return;
+        }
+        if (address.building === "") {
+          this.showBuildingNotif = true;
+          return;
+        }
+      }
+      const ordersBodyRequest = {
+        userId: this.userInfo.id,
+        phone: this.clientsInfo.phone,
+        address,
+        pizzas: this.pizzasInBasket.map((item) => {
+          return {
+            name: item.name,
+            sauceId: item.sauceId,
+            doughId: item.doughId,
+            sizeId: item.sizeId,
+            quantity: this.pizzasCountAndPrice[item.id].count,
+            ingredients: [...item.ingredients].map((item) => {
+              return {
+                ingredientId: item.ingredientId,
+                quantity: item.quantity,
+              };
+            }),
+          };
+        }),
+        misc: miscBasketToMiscOrder(this.additionalProduct, this.misc),
+      };
+      if (this.isAuth) {
+        const res = await this.$store.dispatch("Orders/createOrder", {
+          body: ordersBodyRequest,
+          token: this.token,
+        });
+        if (res) {
+          this.isPopupOpen = true;
+          this.setStateToDefault();
+          await this.$store.dispatch("Addresses/getAddresses", this.token);
+        }
+      } else {
+        const res = await this.$store.dispatch(
+          "Orders/createOrderWithoutAuth",
+          ordersBodyRequest
+        );
+        if (res) {
+          this.isPopupOpen = true;
+          this.setStateToDefault();
+        }
+      }
+    },
+  },
+  watch: {
+    misc: {
+      deep: true,
+      handler(value) {
+        this.$store.commit("Cart/setAdditionalProduct", value);
+      },
     },
   },
 };

@@ -62,11 +62,11 @@
                 <p>Начинка:</p>
                 <ul class="ingredients__list">
                   <builder-ingredients-selector
-                    v-for="ingredient in ingredients"
+                    v-for="ingredient in baseIngredients"
                     :key="ingredient.name"
                     :ingredient="ingredient"
                     @setInParent="setCounter"
-                    :count="countOfIngredients[ingredient.name]"
+                    :count="getCountIngredient(ingredient.id)"
                     @changeCount="
                       changeCountIngredients(ingredient.name, $event)
                     "
@@ -77,7 +77,7 @@
           </div>
         </div>
         <div class="content__pizza">
-          <builder-pizza-name :value="pizzaName" @input="changePizzaName" />
+          <builder-pizza-name :value="name" @input="changePizzaName" />
           <builder-pizza-view
             :fillings="nameIngredients"
             :sauce="sauceType"
@@ -87,7 +87,7 @@
           />
           <builder-price-counter
             :price="price"
-            @addPizza="addPizza(price, newPizza)"
+            @addPizza="addPizza"
             :buttonDisabled="buttonDisabled"
           />
         </div>
@@ -97,7 +97,6 @@
 </template>
 
 <script>
-import pizzaJsonData from "@/static/pizza.json";
 import BuilderSizeSelector from "@/modules/builder/components/BuilderSizeSelector.vue";
 import BuilderDoughSelector from "@/modules/builder/components/BuilderDoughSelector.vue";
 import BuilderSauceSelector from "@/modules/builder/components/BuilderSauceSelector.vue";
@@ -106,7 +105,20 @@ import BuilderPizzaName from "@/modules/builder/components/BuilderPizzaName.vue"
 import BuilderPriceCounter from "@/modules/builder/components/BuilderPriceCounter.vue";
 import BuilderPizzaView from "@/modules/builder/components/BuilderPizzaView.vue";
 import { mapGetters, mapMutations, mapState } from "vuex";
-import Vue from "vue";
+import {
+  getDough,
+  getDoughClass,
+  getSauce,
+  getSaucesClass,
+  getSize,
+  getSizeClass,
+} from "../common/helpers/classes";
+import {
+  findClassById,
+  findId,
+  findIdByClass,
+  findNameById,
+} from "../common/helpers/pizzasFormat";
 
 export default {
   name: "PizzaConstructor",
@@ -120,49 +132,58 @@ export default {
     BuilderPizzaName,
   },
   data() {
-    return {
-      doughs: pizzaJsonData.dough,
-      ingredients: pizzaJsonData.ingredients,
-      sauces: pizzaJsonData.sauces,
-      sizes: pizzaJsonData.sizes,
-    };
+    return {};
   },
   methods: {
-    ...mapMutations("Cart", ["addPizzaToBasket", "changeFinalPrice"]),
-    addPizza(price, pizza) {
-      this.$store.commit("Builder/setPizzaPrice", price);
+    ...mapMutations("Cart", ["addPizzaToBasket"]),
+    addPizza() {
+      this.$store.commit("Builder/setPizzaPrice", this.price);
       this.addPizzaToBasket({
-        ...pizza,
-        countOfIngredients: { ...pizza.countOfIngredients },
+        ...this.newPizza,
+        ingredients: [...this.newPizza.ingredients],
       });
-      this.$store.commit("Builder/setBuilderToDefault");
+      this.$store.commit("Builder/setBuilderToDefault", this.ingredients);
     },
     changeDough(event) {
-      this.$store.commit("Builder/changeDough", event);
+      const id = findIdByClass(event, this.doughs, getDough);
+      this.$store.commit("Builder/changeDough", id);
     },
     changeSize(event) {
-      this.$store.commit("Builder/changeSize", event);
+      const id = findIdByClass(event, this.sizes, getSize);
+      this.$store.commit("Builder/changeSize", id);
     },
     setSauce(event) {
-      this.$store.commit("Builder/setSauce", event);
+      const id = findIdByClass(event, this.sauces, getSauce);
+      this.$store.commit("Builder/setSauce", id);
+    },
+    getCountIngredient(id) {
+      if (this.ingredients.length !== 0) {
+        const needItem = this.ingredients.find(
+          (item) => item.ingredientId === id
+        );
+        return needItem ? needItem.quantity : 0;
+      }
+      return 0;
     },
     changeCountIngredients(name, event) {
-      if (!this.countOfIngredients[name]) {
-        Vue.set(this.countOfIngredients, name, 0);
-      }
       this.$store.commit("Builder/changeCountIngredients", {
-        name,
-        count: event,
+        ingredientId: findId(name, this.baseIngredients),
+        quantity: event,
       });
     },
     changePizzaName(event) {
       this.$store.commit("Builder/changePizzaName", event);
     },
     changeCountIngredientsByDragAndDrop(event) {
-      if (!this.countOfIngredients[event]) {
-        Vue.set(this.countOfIngredients, event, 0);
-      }
-      this.$store.commit("Builder/changeCountIngredientsByDragAndDrop", event);
+      const ingredientId = findId(event, this.fillings.ingredients);
+      const currentIngredient = this.ingredients.find(
+        (item) => item.ingredientId === ingredientId
+      );
+      const quantity = currentIngredient ? currentIngredient.quantity + 1 : 1;
+      this.$store.commit("Builder/changeCountIngredients", {
+        ingredientId,
+        quantity,
+      });
     },
     setCounter(event) {
       this.$store.commit("Builder/setCounter", event);
@@ -170,23 +191,50 @@ export default {
   },
   computed: {
     ...mapState("Builder", [
-      "countOfIngredients",
-      "sauceType",
-      "sizeType",
-      "doughType",
-      "pizzaName",
+      "name",
+      "ingredients",
+      "sauceId",
+      "sizeId",
+      "doughId",
     ]),
+    ...mapState("IngredientsProducts", ["fillings"]),
     ...mapGetters("Builder", ["allIngredients", "price"]),
     newPizza() {
       return this.allIngredients;
     },
+    sauceType() {
+      return findClassById(this.sauceId, this.sauces, getSaucesClass);
+    },
+    sizeType() {
+      return findClassById(this.sizeId, this.sizes, getSizeClass);
+    },
+    doughType() {
+      return findClassById(this.doughId, this.doughs, getDoughClass);
+    },
+    baseIngredients() {
+      return this.fillings.ingredients;
+    },
+    doughs() {
+      return this.fillings.dough;
+    },
+    sizes() {
+      return this.fillings.sizes;
+    },
+    sauces() {
+      return this.fillings.sauces;
+    },
     nameIngredients() {
-      return Object.entries(this.countOfIngredients);
+      return this.ingredients.map((item) => {
+        return [
+          findNameById(item.ingredientId, this.baseIngredients),
+          item.quantity,
+        ];
+      });
     },
     buttonDisabled() {
       return (
-        Object.values(this.countOfIngredients).every((item) => item === 0) ||
-        this.pizzaName === ""
+        this.ingredients.every((item) => item.quantity === 0) ||
+        this.name === ""
       );
     },
   },

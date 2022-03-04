@@ -1,13 +1,8 @@
 <template>
   <li class="additional-list__item sheet">
     <p class="additional-list__description">
-      <img
-        :src="require(`@/assets/img/${type.name}.svg`)"
-        width="39"
-        height="60"
-        :alt="type.description"
-      />
-      <span>{{ type.description }}</span>
+      <img :src="type.image" width="39" height="60" :alt="type.name" />
+      <span>{{ type.name }}</span>
     </p>
 
     <CartItemCounter
