@@ -1,7 +1,13 @@
 <template>
   <div id="app">
     <AppLayout>
-      <router-view />
+      <transition
+        name="view"
+        appear
+        enter-active-class="animate__animated animate__bounceInRight"
+      >
+        <router-view />
+      </transition>
     </AppLayout>
   </div>
 </template>
@@ -9,7 +15,6 @@
 <script>
 import AppLayout from "./layouts/AppLayout.vue";
 import JwtService from "./services/jwt.service";
-
 export default {
   name: "App",
   components: { AppLayout },

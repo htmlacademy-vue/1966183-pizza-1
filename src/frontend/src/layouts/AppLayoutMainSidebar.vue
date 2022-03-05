@@ -11,13 +11,13 @@
 
     <router-link
       to="/orders"
-      active-class="layout__link layout__link--active"
+      active-class="layout__link--active"
       class="layout__link"
       >История заказов</router-link
     >
     <router-link
       to="/profile"
-      active-class="layout__link layout__link--active"
+      active-class="layout__link--active"
       class="layout__link"
       >Мои данные</router-link
     >

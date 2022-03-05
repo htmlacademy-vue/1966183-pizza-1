@@ -70,6 +70,7 @@
                     @changeCount="
                       changeCountIngredients(ingredient.name, $event)
                     "
+                    @deleteDragName="imageAnimation = ''"
                   />
                 </ul>
               </div>
@@ -91,6 +92,15 @@
             :buttonDisabled="buttonDisabled"
           />
         </div>
+        <transition name="ingredient-img">
+          <img
+            :src="imageAnimation"
+            alt="Анимационная картинка"
+            v-if="imageAnimation"
+            class="image-animation"
+            width="60"
+          />
+        </transition>
       </div>
     </form>
   </main>
@@ -117,6 +127,7 @@ import {
   findClassById,
   findId,
   findIdByClass,
+  findImageByName,
   findNameById,
 } from "../common/helpers/pizzasFormat";
 
@@ -132,7 +143,9 @@ export default {
     BuilderPizzaName,
   },
   data() {
-    return {};
+    return {
+      imageAnimation: "",
+    };
   },
   methods: {
     ...mapMutations("Cart", ["addPizzaToBasket"]),
@@ -184,6 +197,10 @@ export default {
         ingredientId,
         quantity,
       });
+      this.imageAnimation = findImageByName(event, this.baseIngredients);
+      setTimeout(() => {
+        this.imageAnimation = "";
+      }, 1500);
     },
     setCounter(event) {
       this.$store.commit("Builder/setCounter", event);
@@ -240,3 +257,21 @@ export default {
   },
 };
 </script>
+<style lang="scss" scoped>
+.image-animation {
+  position: absolute;
+  right: 200px;
+  opacity: 0.7;
+}
+.ingredient-img-enter-active {
+  transition: all 2s;
+  top: 500px;
+}
+.ingredient-img-enter {
+  margin-left: 90px;
+  top: 0;
+}
+.ingredient-img-leave-active {
+  opacity: 0;
+}
+</style>
