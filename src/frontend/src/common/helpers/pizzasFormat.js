@@ -38,6 +38,14 @@ export const findClassById = (id, list, callback) => {
   return "";
 };
 
+export const findImageByName = (name, list) => {
+  const nameValue = list.find((item) => item.name === name);
+  if (nameValue) {
+    return nameValue.image;
+  }
+  return "";
+};
+
 export const miscBasketToMiscOrder = (additionStore, misc) => {
   const keys = Object.keys(additionStore);
   return keys.map((name) => ({

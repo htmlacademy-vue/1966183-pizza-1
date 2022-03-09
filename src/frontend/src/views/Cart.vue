@@ -53,7 +53,9 @@
       @make-order="makeOrder"
       :order-button-disabled="orderButtonDisabled"
     />
-    <CartOrderPlaced v-if="isPopupOpen" @close-popup="closePopup" />
+    <transition name="popup">
+      <CartOrderPlaced v-if="isPopupOpen" @close-popup="closePopup" />
+    </transition>
   </form>
 </template>
 
@@ -157,6 +159,7 @@ export default {
     closePopup() {
       this.isPopupOpen = false;
       if (!this.isAuth) this.$router.push("/");
+      else this.$router.push("/orders");
     },
     async makeOrder() {
       this.showStreetNotif = false;
@@ -234,4 +237,13 @@ export default {
 };
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.popup-enter-active,
+.popup-leave-active {
+  transition: opacity 1s;
+}
+.popup-enter,
+.popup-leave-to {
+  opacity: 0;
+}
+</style>
