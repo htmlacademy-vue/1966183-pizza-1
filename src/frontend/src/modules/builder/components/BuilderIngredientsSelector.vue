@@ -1,8 +1,6 @@
 <template>
   <li class="ingredients__item">
-    <app-drag
-      :transferData="ingredient.name"
-    >
+    <app-drag :transferData="ingredient.name">
       <selector-item :item="ingredient" selectorType="filling" />
     </app-drag>
     <item-counter

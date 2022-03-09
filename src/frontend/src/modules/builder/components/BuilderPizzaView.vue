@@ -4,15 +4,21 @@
       <div :class="pizzaClass">
         <div class="pizza__wrapper">
           <div v-for="(fill, index) in fillings" :key="`filling--${index}`">
-            <div :class="getCorrectClassName(fill)" v-show="fill[1] > 0"></div>
-            <div
-              :class="`${getCorrectClassName(fill)} pizza__filling--second`"
-              v-show="fill[1] > 1"
-            ></div>
-            <div
-              :class="`${getCorrectClassName(fill)} pizza__filling--third`"
-              v-show="fill[1] > 2"
-            ></div>
+            <transition name="fade" appear>
+              <div :class="getCorrectClassName(fill)" v-if="fill[1] >= 1" />
+            </transition>
+            <transition name="fade">
+              <div
+                :class="`${getCorrectClassName(fill)} pizza__filling--second`"
+                v-if="fill[1] > 1"
+              />
+            </transition>
+            <transition name="fade">
+              <div
+                :class="`${getCorrectClassName(fill)} pizza__filling--third`"
+                v-if="fill[1] > 2"
+              />
+            </transition>
           </div>
         </div>
       </div>
@@ -56,4 +62,13 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 2s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
